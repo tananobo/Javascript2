@@ -1,7 +1,8 @@
 let store = {
-    user: { name: "Student" },
+    user: { name: "Noboru" },
     apod: '',
     rovers: ['Curiosity', 'Opportunity', 'Spirit'],
+    rovers_flg: {'Curiosity': false, 'Opprtunity': false, 'Sprit': false}
 }
 
 // add our markup to the page
@@ -37,11 +38,18 @@ const App = (state) => {
                     but generally help with discoverability of relevant imagery.
                 </p>
                 ${ImageOfTheDay(apod)}
+                ${LatestRoversImage(rovers, 'Curiosity')}
             </section>
         </main>
         <footer></footer>
     `
 }
+
+/*                 ${LatestRoversImage(rovers, 'Curiosity')}
+                ${LatestRoversImage(rovers, 'Opportunity')}
+                ${LatestRoversImage(rovers, 'Spirit')} */
+
+
 
 // listening for load event because page should load before any JS is called
 window.addEventListener('load', () => {
@@ -63,19 +71,30 @@ const Greeting = (name) => {
     `
 }
 
+// pure function 
+const LatestRoversImage = (rovers, rover_name) => {
+    if (!store.rovers_flg[rover_name]){
+        store.rovers_flg[rover_name] = true
+        getLatestRoverImage (store, rover_name)
+    }
+    console.log(store)
+    return (`
+        <img src="${store.rover_info.contents.photos[0].img_src}" height="350px" width="100%" />
+        <p></p>
+    `)
+}
+
+
 // Example of a pure function that renders infomation requested from the backend
 const ImageOfTheDay = (apod) => {
-
     // If image does not already exist, or it is not from today -- request it again
     const today = new Date()
     const photodate = new Date(apod.date)
-    console.log(photodate.getDate(), today.getDate());
-
-    console.log(photodate.getDate() === today.getDate());
+    // console.log(photodate.getDate(), today.getDate());
+    // console.log(photodate.getDate() === today.getDate());
     if (!apod || apod.date === today.getDate() ) {
         getImageOfTheDay(store)
     }
-
     // check if the photo of the day is actually type video!
     if (apod.media_type === "video") {
         return (`
@@ -92,6 +111,18 @@ const ImageOfTheDay = (apod) => {
 }
 
 // ------------------------------------------------------  API CALLS
+const getLatestRoverImage = (state, rover_name) => {
+    let { rovers } = state
+    fetch(`http://localhost:3000/mars/${rover_name}`)
+        .then(res => res.json())
+        //should change this to Immurable style
+        .then(rover_info => {
+            updateStore(store, { rover_info })
+        }) 
+
+    return data
+}
+
 
 // Example API call
 const getImageOfTheDay = (state) => {
@@ -99,7 +130,9 @@ const getImageOfTheDay = (state) => {
 
     fetch(`http://localhost:3000/apod`)
         .then(res => res.json())
-        .then(apod => updateStore(store, { apod }))
+        .then(apod => {
+            updateStore(store, { apod })
+        })
 
-    return data
+    // return data
 }
