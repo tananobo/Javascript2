@@ -1,9 +1,13 @@
-let store = {
-    user: { name: "Noboru" },
+const rovers_name = ['Curiosity', 'Opportunity', 'Spirit']
+const upper_rovers_name = rovers_name.map(rover_name => rover_name.toUpperCase())
+
+const store = {
+    user: Immutable.Map({ name: 'Noboru' }),
     apod: '',
-    rovers: ['Curiosity', 'Opportunity', 'Spirit'],
+    rovers: upper_rovers_name,
     rovers_flg: {'Curiosity': false, 'Opprtunity': false, 'Sprit': false}
-}
+  }
+
 
 // add our markup to the page
 const root = document.getElementById('root')
@@ -25,11 +29,10 @@ const render = async (root, state) => {
 
 // create content
 const App = (state, select_value) => {
-
     return `
         <header></header>
         <main>
-            <h1>Welcome, ${store.user.name}!</h1>
+            <h1>Welcome, ${state.user.get('name')}!</h1>
             <section>
                 <h3>Mars Dashboard</h3>
                 <p></p>
@@ -58,8 +61,10 @@ const LatestRoversImage = (state, rover_name) => {
     }
     return (`
         <h3>rover name: ${rover_name}</h3>
+        <p>launch_date: ${store.rover_info.contents.photos[0].rover.launch_date}</p>
         <p>landing_date: ${store.rover_info.contents.photos[0].rover.landing_date}</p>
         <p>status: ${store.rover_info.contents.photos[0].rover.status}</p>
+        <p>photo taken date: ${store.rover_info.contents.photos[0].earth_date}</p>
         <img src="${store.rover_info.contents.photos[0].img_src}" height="350px" width="100%" />
     `)
 }
